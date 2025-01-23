@@ -1,48 +1,49 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, HttpCode, HttpStatus, UseGuards, Query } from '@nestjs/common';
+import { Controller, Get, Post, Body, Put, Param, Delete, ParseIntPipe, UseInterceptors, ClassSerializerInterceptor } from '@nestjs/common';
 import { UsersService } from './users.service';
+import { User } from './entities/user.entity';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
-import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard';
-import { ActivateUserDto } from './dto/activate-user.dto';
 
 @Controller('users')
-@UseGuards(JwtAuthGuard)
+@UseInterceptors(ClassSerializerInterceptor)
 export class UsersController {
-  constructor(private readonly usersService: UsersService) {}
+ constructor(private readonly usersService: UsersService) {}
 
-  @Post()
-  @HttpCode(HttpStatus.CREATED)
-  create(@Body() createUserDto: CreateUserDto) {
-    return this.usersService.create(createUserDto);
-  }
+ @Get('inactive')
+ findInactive(): Promise<User[]> {
+   return this.usersService.findInactive();
+ }
 
-  @Get()
-  findAll(@Query('isActive') isActive: string) {
-    const isActiveBool = isActive ? isActive.toLowerCase() === 'true' : undefined;
-    return this.usersService.findAll(isActiveBool);
-  }
+ @Get()
+ findAll(): Promise<User[]> {
+   return this.usersService.findAll();
+ }
 
-  @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.usersService.findOne(id);
-  }
+ @Get(':id')
+ findOne(@Param('id', ParseIntPipe) id: number): Promise<User> {
+   return this.usersService.findOne(id);
+ }
 
-  @Patch(':id')
-  update(@Param('id') id: string, @Body() updateUserDto: UpdateUserDto) {
-    return this.usersService.update(id, updateUserDto);
-  }
+ @Post()
+ create(@Body() createUserDto: CreateUserDto): Promise<User> {
+   return this.usersService.create(createUserDto);
+ }
 
-  @Delete(':id')
-  @HttpCode(HttpStatus.NO_CONTENT)
-  remove(@Param('id') id: string) {
-    return this.usersService.remove(id);
-  }
+ @Put('reactivate/:id')
+ reactivate(@Param('id', ParseIntPipe) id: number): Promise<User> {
+   return this.usersService.reactivate(id);
+ }
 
-  @Patch(':id/activate')
-  activateUser(
-    @Param('id') id: string, 
-    @Body() activateUserDto: ActivateUserDto
-  ) {
-    return this.usersService.activateUser(id, activateUserDto);
-  }
+ @Put(':id')
+ update(
+   @Param('id', ParseIntPipe) id: number,
+   @Body() updateUserDto: UpdateUserDto,
+ ): Promise<User> {
+   return this.usersService.update(id, updateUserDto);
+ }
+
+ @Delete(':id')
+ remove(@Param('id', ParseIntPipe) id: number): Promise<void> {
+   return this.usersService.softDelete(id);
+ }
 }
