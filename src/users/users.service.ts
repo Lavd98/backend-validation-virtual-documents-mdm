@@ -1,4 +1,8 @@
-import { Injectable, NotFoundException, ConflictException } from '@nestjs/common';
+import {
+  Injectable,
+  NotFoundException,
+  ConflictException,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Not, Repository } from 'typeorm';
 import * as bcrypt from 'bcrypt';
@@ -8,122 +12,125 @@ import { UpdateUserDto } from './dto/update-user.dto';
 
 @Injectable()
 export class UsersService {
- constructor(
-   @InjectRepository(User)
-   private userRepository: Repository<User>,
- ) {}
+  constructor(
+    @InjectRepository(User)
+    private userRepository: Repository<User>,
+  ) {}
 
- async findAll(): Promise<User[]> {
-   return await this.userRepository.find({
-     where: { isActive: true },
-     relations: ['Area'],
-     order: { Id: 'DESC' }
-   });
- }
+  async findAll(): Promise<User[]> {
+    return await this.userRepository.find({
+      where: { IsActive: true },
+      relations: ['Area'],
+      order: { Id: 'DESC' },
+    });
+  }
 
- async findInactive(): Promise<User[]> {
-   return await this.userRepository.find({
-     where: { isActive: false },
-     relations: ['Area'],
-     order: { Id: 'DESC' }
-   });
- }
+  async findInactive(): Promise<User[]> {
+    return await this.userRepository.find({
+      where: { IsActive: false },
+      relations: ['Area'],
+      order: { Id: 'DESC' },
+    });
+  }
 
- async findOne(id: number): Promise<User> {
-   const user = await this.userRepository.findOne({
-     where: { Id: id, isActive: true },
-     relations: ['Area']
-   });
-   if (!user) {
-     throw new NotFoundException(`User with ID ${id} not found`);
-   }
-   return user;
- }
+  async findOne(id: number): Promise<User> {
+    const user = await this.userRepository.findOne({
+      where: { Id: id, IsActive: true },
+      relations: ['Area'],
+    });
+    if (!user) {
+      throw new NotFoundException(`User with ID ${id} not found`);
+    }
+    return user;
+  }
 
- async create(createUserDto: CreateUserDto): Promise<User> {
-   const existingUser = await this.userRepository.findOne({
-     where: { Username: createUserDto.Username.trim(), isActive: true }
-   });
+  async create(createUserDto: CreateUserDto): Promise<User> {
+    const existingUser = await this.userRepository.findOne({
+      where: { Username: createUserDto.Username.trim(), IsActive: true },
+    });
 
-   if (existingUser) {
-     throw new ConflictException(`Username ${createUserDto.Username} already exists`);
-   }
+    if (existingUser) {
+      throw new ConflictException(
+        `Username ${createUserDto.Username} already exists`,
+      );
+    }
 
-   const hashedPassword = await bcrypt.hash(createUserDto.Password, 10);
+    const hashedPassword = await bcrypt.hash(createUserDto.Password, 10);
 
-   const user = this.userRepository.create({
-     ...createUserDto,
-     Password: hashedPassword,
-     CreatedAt: new Date()
-   });
-   
-   return await this.userRepository.save(user);
- }
+    const user = this.userRepository.create({
+      ...createUserDto,
+      Password: hashedPassword,
+      CreatedAt: new Date(),
+    });
 
- async update(id: number, updateUserDto: UpdateUserDto): Promise<User> {
-   const user = await this.findOne(id);
+    return await this.userRepository.save(user);
+  }
 
-   const existingUser = await this.userRepository.findOne({
-     where: { 
-       Username: updateUserDto.Username.trim(),
-       isActive: true,
-       Id: Not(id)
-     }
-   });
+  async update(id: number, updateUserDto: UpdateUserDto): Promise<User> {
+    const user = await this.findOne(id);
 
-   if (existingUser) {
-     throw new ConflictException(`Username ${updateUserDto.Username} already exists`);
-   }
+    const existingUser = await this.userRepository.findOne({
+      where: {
+        Username: updateUserDto.Username.trim(),
+        IsActive: true,
+        Id: Not(id),
+      },
+    });
 
-   if (updateUserDto.Password) {
-     updateUserDto.Password = await bcrypt.hash(updateUserDto.Password, 10);
-   }
+    if (existingUser) {
+      throw new ConflictException(
+        `Username ${updateUserDto.Username} already exists`,
+      );
+    }
 
-   this.userRepository.merge(user, {
-     ...updateUserDto,
-     UpdatedAt: new Date()
-   });
-   return await this.userRepository.save(user);
- }
+    if (updateUserDto.Password) {
+      updateUserDto.Password = await bcrypt.hash(updateUserDto.Password, 10);
+    }
 
- async softDelete(id: number): Promise<void> {
-   const user = await this.findOne(id);
-   user.isActive = false;
-   user.UpdatedAt = new Date();
-   await this.userRepository.save(user);
- }
+    this.userRepository.merge(user, {
+      ...updateUserDto,
+      UpdatedAt: new Date(),
+    });
+    return await this.userRepository.save(user);
+  }
 
- async reactivate(id: number): Promise<User> {
-   const user = await this.userRepository.findOne({
-     where: { Id: id, isActive: false }
-   });
-   
-   if (!user) {
-     throw new NotFoundException(`Inactive user with ID ${id} not found`);
-   }
+  async softDelete(id: number): Promise<void> {
+    const user = await this.findOne(id);
+    user.IsActive = false;
+    user.UpdatedAt = new Date();
+    await this.userRepository.save(user);
+  }
 
-   const existingActive = await this.userRepository.findOne({
-     where: { Username: user.Username, isActive: true }
-   });
+  async reactivate(id: number): Promise<User> {
+    const user = await this.userRepository.findOne({
+      where: { Id: id, IsActive: false },
+    });
 
-   if (existingActive) {
-     throw new ConflictException(`Username ${user.Username} already exists`);
-   }
+    if (!user) {
+      throw new NotFoundException(`Inactive user with ID ${id} not found`);
+    }
 
-   user.isActive = true;
-   user.UpdatedAt = new Date();
-   return await this.userRepository.save(user);
- }
+    const existingActive = await this.userRepository.findOne({
+      where: { Username: user.Username, IsActive: true },
+    });
+
+    if (existingActive) {
+      throw new ConflictException(`Username ${user.Username} already exists`);
+    }
+
+    user.IsActive = true;
+    user.UpdatedAt = new Date();
+    return await this.userRepository.save(user);
+  }
 
   async findByUsername(username: string): Promise<User | undefined> {
     const user = await this.userRepository.findOne({
-      where: { Username: username, isActive: true },
-      relations: ['Area']
+      where: { Username: username, IsActive: true },
+      relations: ['Area'],
     });
     if (!user) {
       throw new NotFoundException(`User not found`);
     }
     return user;
   }
-
 }
