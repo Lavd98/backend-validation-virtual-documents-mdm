@@ -1,7 +1,7 @@
 import { Module } from '@nestjs/common';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
-// import { AuthModule } from './auth/auth.module';
+import { AuthModule } from './auth/auth.module';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { ModulesModule } from './modules/modules.module';
@@ -34,10 +34,11 @@ import { UsersModule } from './users/users.module';
         },
       }),
     }),
-    // AuthModule, 
+    AuthModule, 
     ModulesModule, 
     AreasModule, 
-    DocumentTypesModule, UsersModule
+    DocumentTypesModule, 
+    UsersModule
   ],
   controllers: [AppController],
   providers: [AppService],

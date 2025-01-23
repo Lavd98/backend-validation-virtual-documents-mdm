@@ -114,4 +114,16 @@ export class UsersService {
    user.UpdatedAt = new Date();
    return await this.userRepository.save(user);
  }
+
+  async findByUsername(username: string): Promise<User | undefined> {
+    const user = await this.userRepository.findOne({
+      where: { Username: username, isActive: true },
+      relations: ['Area']
+    });
+    if (!user) {
+      throw new NotFoundException(`User not found`);
+    }
+    return user;
+  }
+
 }
