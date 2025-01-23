@@ -12,5 +12,5 @@ export class Area {
   Abbreviation: string;
 
   @Column({ type: 'bit', default: true })
-  isActive: boolean;
+  IsActive: boolean;
 }

@@ -14,24 +14,33 @@ export class AreasService {
 
   async findAll(): Promise<Area[]> {
     return await this.areaRepository.find({
-      where: { isActive: true },
+      where: { IsActive: true },
       order: {
-        Name: 'ASC'
-      }
+        Name: 'ASC',
+      },
     });
   }
 
   async findOne(id: number): Promise<Area> {
-    const area = await this.areaRepository.findOne({ 
-      where: { 
+    const area = await this.areaRepository.findOne({
+      where: {
         Id: id,
-        isActive: true 
-      } 
+        IsActive: true,
+      },
     });
     if (!area) {
       throw new NotFoundException(`Area with ID ${id} not found`);
     }
     return area;
+  }
+
+  async findInactive(): Promise<Area[]> {
+    return await this.areaRepository.find({
+      where: { IsActive: false },
+      order: {
+        Name: 'ASC',
+      },
+    });
   }
 
   async create(createAreaDto: CreateAreaDto): Promise<Area> {
@@ -47,18 +56,18 @@ export class AreasService {
 
   async softDelete(id: number): Promise<void> {
     const area = await this.findOne(id);
-    area.isActive = false;
+    area.IsActive = false;
     await this.areaRepository.save(area);
   }
 
   async reactivate(id: number): Promise<Area> {
-    const area = await this.areaRepository.findOne({ 
-      where: { Id: id } 
+    const area = await this.areaRepository.findOne({
+      where: { Id: id },
     });
     if (!area) {
       throw new NotFoundException(`Area with ID ${id} not found`);
     }
-    area.isActive = true;
+    area.IsActive = true;
     return await this.areaRepository.save(area);
   }
 }
