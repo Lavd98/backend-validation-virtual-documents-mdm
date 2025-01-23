@@ -9,5 +9,5 @@ export class DocumentType {
   Name: string;
 
   @Column({ type: 'bit', default: true })
-  isActive: boolean;
+  IsActive: boolean;
 }
