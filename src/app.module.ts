@@ -8,6 +8,7 @@ import { ModulesModule } from './modules/modules.module';
 import { AreasModule } from './areas/areas.module';
 import { DocumentTypesModule } from './document-types/document-types.module';
 import { UsersModule } from './users/users.module';
+import { DocumentsModule } from './documents/documents.module';
 
 @Module({
   imports: [
@@ -38,7 +39,7 @@ import { UsersModule } from './users/users.module';
     ModulesModule, 
     AreasModule, 
     DocumentTypesModule, 
-    UsersModule
+    UsersModule, DocumentsModule
   ],
   controllers: [AppController],
   providers: [AppService],

@@ -12,5 +12,5 @@ export class CreateAreaDto {
   Abbreviation: string;
 
   @IsBoolean()
-  isActive: boolean = true;
+  IsActive: boolean = true;
 }
