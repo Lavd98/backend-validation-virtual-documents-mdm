@@ -1,6 +1,14 @@
 import {
-  Controller, Get, Post, Body, Put, Param, Delete,
-  ParseIntPipe, UseInterceptors, UploadedFile
+  Controller,
+  Get,
+  Post,
+  Body,
+  Put,
+  Param,
+  Delete,
+  ParseIntPipe,
+  UseInterceptors,
+  UploadedFile,
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { CreateDocumentDto } from './dto/create-document.dto';
@@ -10,7 +18,7 @@ import { Document } from '../documents/entities/document.entity';
 
 @Controller('documents')
 export class DocumentsController {
-  constructor(private readonly documentsService: DocumentsService) { }
+  constructor(private readonly documentsService: DocumentsService) {}
 
   @Get('inactive')
   findInactive(): Promise<Document[]> {
@@ -23,8 +31,17 @@ export class DocumentsController {
   }
 
   @Get('area/:areaId')
-  findByArea(@Param('areaId', ParseIntPipe) areaId: number): Promise<Document[]> {
+  findByArea(
+    @Param('areaId', ParseIntPipe) areaId: number,
+  ): Promise<Document[]> {
     return this.documentsService.findByArea(areaId);
+  }
+
+  @Get('area/:areaId/inactive')
+  findByAreaInactive(
+    @Param('areaId', ParseIntPipe) areaId: number,
+  ): Promise<Document[]> {
+    return this.documentsService.findByAreaInactive(areaId);
   }
 
   @Get()
@@ -41,7 +58,7 @@ export class DocumentsController {
   @UseInterceptors(FileInterceptor('file'))
   create(
     @Body() createDocumentDto: CreateDocumentDto,
-    @UploadedFile() file: Express.Multer.File
+    @UploadedFile() file: Express.Multer.File,
   ): Promise<Document> {
     return this.documentsService.create(createDocumentDto, file);
   }
@@ -56,7 +73,7 @@ export class DocumentsController {
   update(
     @Param('id', ParseIntPipe) id: number,
     @Body() updateDocumentDto: UpdateDocumentDto,
-    @UploadedFile() file?: Express.Multer.File
+    @UploadedFile() file?: Express.Multer.File,
   ): Promise<Document> {
     return this.documentsService.update(id, updateDocumentDto, file);
   }
