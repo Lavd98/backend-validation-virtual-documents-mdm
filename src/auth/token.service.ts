@@ -42,7 +42,7 @@ export class TokenService {
 
       const newToken = this.jwtService.sign(payload, {
         secret: this.configService.get<string>('JWT_SECRET'),
-        expiresIn: '10s',
+        expiresIn: '10m',
       });
       const { AreaId, ...userWithoutAreaId } = user;
       return {
