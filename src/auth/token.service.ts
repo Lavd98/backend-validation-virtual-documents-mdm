@@ -9,17 +9,17 @@ export class TokenService {
     private readonly configService: ConfigService,
   ) {}
 
-  validateToken(token: string): { valid: boolean; expired: boolean } {
+  validateToken(token: string): { Valid: boolean; Expired: boolean } {
     try {
       const decoded = this.jwtService.verify(token, {
         secret: this.configService.get<string>('JWT_SECRET'),
       });
-      return { valid: true, expired: false };
+      return { Valid: true, Expired: false };
     } catch (error) {
       if (error.name === 'TokenExpiredError') {
-        return { valid: false, expired: true };
+        return { Valid: false, Expired: true };
       }
-      return { valid: false, expired: false };
+      return { Valid: false, Expired: false };
     }
   }
 }

@@ -29,7 +29,7 @@ export class AuthService {
 
   async login(user: User) {
     const payload = { Username: user.Username, sub: user.Id };
-    const token = this.jwtService.sign(payload, { expiresIn: '10m' });
+    const token = this.jwtService.sign(payload, { expiresIn: '10s' });
     const { AreaId, ...userWithoutAreaId } = user;
     return {
       Token: token,
