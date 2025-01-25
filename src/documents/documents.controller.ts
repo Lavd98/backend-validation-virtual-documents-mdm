@@ -9,18 +9,21 @@ import {
   ParseIntPipe,
   UseInterceptors,
   UploadedFile,
+  UseGuards,
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { CreateDocumentDto } from './dto/create-document.dto';
 import { UpdateDocumentDto } from './dto/update-document.dto';
 import { DocumentsService } from './documents.service';
 import { Document } from '../documents/entities/document.entity';
+import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard';
 
 @Controller('documents')
 export class DocumentsController {
   constructor(private readonly documentsService: DocumentsService) {}
 
   @Get('inactive')
+  @UseGuards(JwtAuthGuard)
   findInactive(): Promise<Document[]> {
     return this.documentsService.findInactive();
   }
@@ -31,6 +34,7 @@ export class DocumentsController {
   }
 
   @Get('area/:areaId')
+  @UseGuards(JwtAuthGuard)
   findByArea(
     @Param('areaId', ParseIntPipe) areaId: number,
   ): Promise<Document[]> {
@@ -38,6 +42,7 @@ export class DocumentsController {
   }
 
   @Get('area/:areaId/inactive')
+  @UseGuards(JwtAuthGuard)
   findByAreaInactive(
     @Param('areaId', ParseIntPipe) areaId: number,
   ): Promise<Document[]> {
@@ -45,16 +50,19 @@ export class DocumentsController {
   }
 
   @Get()
+  @UseGuards(JwtAuthGuard)
   findAll(): Promise<Document[]> {
     return this.documentsService.findAll();
   }
 
   @Get(':id')
+  @UseGuards(JwtAuthGuard)
   findOne(@Param('id', ParseIntPipe) id: number): Promise<Document> {
     return this.documentsService.findOne(id);
   }
 
   @Post()
+  @UseGuards(JwtAuthGuard)
   @UseInterceptors(FileInterceptor('file'))
   create(
     @Body() createDocumentDto: CreateDocumentDto,
@@ -64,11 +72,13 @@ export class DocumentsController {
   }
 
   @Put('reactivate/:id')
+  @UseGuards(JwtAuthGuard)
   reactivate(@Param('id', ParseIntPipe) id: number): Promise<Document> {
     return this.documentsService.reactivate(id);
   }
 
   @Put(':id')
+  @UseGuards(JwtAuthGuard)
   @UseInterceptors(FileInterceptor('file'))
   update(
     @Param('id', ParseIntPipe) id: number,
@@ -79,6 +89,7 @@ export class DocumentsController {
   }
 
   @Delete(':id')
+  @UseGuards(JwtAuthGuard)
   remove(@Param('id', ParseIntPipe) id: number): Promise<void> {
     return this.documentsService.softDelete(id);
   }

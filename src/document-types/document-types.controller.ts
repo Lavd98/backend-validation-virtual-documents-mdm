@@ -1,10 +1,12 @@
-import { Controller, Get, Post, Body, Put, Param, Delete, ParseIntPipe } from '@nestjs/common';
+import { Controller, Get, Post, Body, Put, Param, Delete, ParseIntPipe, UseGuards } from '@nestjs/common';
 import { DocumentTypesService } from './document-types.service';
 import { DocumentType } from './entities/document-type.entity';
 import { CreateDocumentTypeDto } from './dto/create-document-type.dto';
 import { UpdateDocumentTypeDto } from './dto/update-document-type.dto';
+import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard';
 
 @Controller('document-types')
+@UseGuards(JwtAuthGuard)
 export class DocumentTypesController {
   constructor(private readonly documentTypesService: DocumentTypesService) {}
   
