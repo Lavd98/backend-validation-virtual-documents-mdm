@@ -32,6 +32,11 @@ export class AuthController {
     return this.tokenService.validateToken(token);
   }
 
+  @Post('new-token')
+  newToken(@Body('Token') token: string) {
+    return this.tokenService.newToken(token);
+  }
+
   //End point para crear usuarios sin token
   // @Post('register')
   // async register(@Body() createUserDto: CreateUserDto) {
