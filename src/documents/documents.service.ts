@@ -125,7 +125,7 @@ export class DocumentsService {
     const document = this.documentRepository.create({
       ...createDocumentDto,
       VerificationCode: verificationCode,
-      FilePath: filePath,
+      FilePath: fileName,
       CreatedAt: new Date(),
     });
     return await this.documentRepository.save(document);
