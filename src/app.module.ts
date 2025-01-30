@@ -13,7 +13,7 @@ import { DocumentsModule } from './documents/documents.module';
   imports: [
     ConfigModule.forRoot({
       isGlobal: true,
-      envFilePath: '.env'
+      envFilePath: `.env.${process.env.NODE_ENV || 'development'}`
     }),
     TypeOrmModule.forRootAsync({
       imports: [ConfigModule],
