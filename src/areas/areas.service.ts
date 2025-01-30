@@ -1,15 +1,17 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { ConflictException, Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Area } from './entities/area.entity';
 import { CreateAreaDto } from './dto/create-area.dto';
 import { UpdateAreaDto } from './dto/update-area.dto';
+import { DocumentsService } from 'src/documents/documents.service';
 
 @Injectable()
 export class AreasService {
   constructor(
     @InjectRepository(Area)
     private areaRepository: Repository<Area>,
+    private documentsService: DocumentsService,
   ) {}
 
   async findAll(): Promise<Area[]> {
@@ -56,6 +58,14 @@ export class AreasService {
 
   async softDelete(id: number): Promise<void> {
     const area = await this.findOne(id);
+    const activeDocuments = await this.documentsService.findByArea(id);
+
+    if (activeDocuments.length > 0) {
+      throw new ConflictException(
+        `No se puede desactivar el área porque tiene ${activeDocuments.length} documento(s) activo(s) vinculado(s)`
+      );
+    }
+    
     area.IsActive = false;
     await this.areaRepository.save(area);
   }

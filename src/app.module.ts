@@ -4,7 +4,6 @@ import { AppService } from './app.service';
 import { AuthModule } from './auth/auth.module';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { ConfigModule, ConfigService } from '@nestjs/config';
-import { ModulesModule } from './modules/modules.module';
 import { AreasModule } from './areas/areas.module';
 import { DocumentTypesModule } from './document-types/document-types.module';
 import { UsersModule } from './users/users.module';
@@ -35,8 +34,7 @@ import { DocumentsModule } from './documents/documents.module';
         },
       }),
     }),
-    AuthModule, 
-    ModulesModule, 
+    AuthModule,
     AreasModule, 
     DocumentTypesModule, 
     UsersModule, DocumentsModule
