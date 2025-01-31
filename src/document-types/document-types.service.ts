@@ -8,12 +8,14 @@ import { Not, Repository } from 'typeorm';
 import { DocumentType } from './entities/document-type.entity';
 import { CreateDocumentTypeDto } from './dto/create-document-type.dto';
 import { UpdateDocumentTypeDto } from './dto/update-document-type.dto';
+import { DocumentsService } from 'src/documents/documents.service';
 
 @Injectable()
 export class DocumentTypesService {
   constructor(
     @InjectRepository(DocumentType)
     private documentTypeRepository: Repository<DocumentType>,
+    private documentsService: DocumentsService,
   ) {}
 
   async findAll(): Promise<DocumentType[]> {
@@ -83,6 +85,13 @@ export class DocumentTypesService {
 
   async softDelete(id: number): Promise<void> {
     const documentType = await this.findOne(id);
+    const activeDocuments = await this.documentsService.findByArea(id);
+
+    if (activeDocuments.length > 0) {
+      throw new ConflictException(
+        `No se puede desactivar el tipo de documento porque tiene ${activeDocuments.length} documento(s) activo(s) vinculado(s)`
+      );
+    }
     documentType.IsActive = false;
     await this.documentTypeRepository.save(documentType);
   }

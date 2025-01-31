@@ -4,9 +4,11 @@ import { ClassSerializerInterceptor, ValidationPipe } from '@nestjs/common';
 import { ResponseInterceptor } from './common/interceptors/response.interceptor';
 import { AllExceptionsFilter } from './common/filters/all-exceptions.filter';
 import { useContainer } from 'typeorm';
+import { ConfigService } from '@nestjs/config';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
+  const configService = app.get(ConfigService);
   
   app.setGlobalPrefix('api');
   
@@ -30,7 +32,8 @@ async function bootstrap() {
   app.useGlobalFilters(new AllExceptionsFilter(httpAdapter));
   
   app.enableCors();
-
-  await app.listen(3000);
+  const port = configService.get<number>('PORT', 3000);
+  await app.listen(port);
+  console.log(`Application is running on port ${port}`);
 }
 bootstrap();

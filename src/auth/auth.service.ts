@@ -32,7 +32,7 @@ export class AuthService {
       Username: user.Username,
       sub: user.Id,
     };
-    const token = this.jwtService.sign(payload, { expiresIn: '5s' });
+    const token = this.jwtService.sign(payload, { expiresIn: '10m' });
     const { AreaId, ...userWithoutAreaId } = user;
     return {
       Token: token,

@@ -133,4 +133,14 @@ export class UsersService {
     }
     return user;
   }
+
+  async findByArea(areaId: number): Promise<User[]> {
+    return await this.userRepository.find({
+      where: { 
+        Area: { Id: areaId },
+        IsActive: true 
+      },
+      relations: ['Area']
+    });
+  }
 }
