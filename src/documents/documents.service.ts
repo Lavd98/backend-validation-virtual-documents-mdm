@@ -103,9 +103,32 @@ export class DocumentsService {
     return document;
   }
 
+  async uploadFile(id: number, file: Express.Multer.File): Promise<Document> {
+    const document = await this.findOne(id);
+
+    if (document.FilePath) {
+      const rutaArchivoAntiguo = path.join(this.uploadPath, document.FilePath);
+      try {
+        await fs.promises.unlink(rutaArchivoAntiguo);
+      } catch (error) {
+        console.error('Error al eliminar archivo antiguo:', error);
+      }
+    }
+
+    const fileName = `${document.VerificationCode}_${file.originalname}`;
+    const filePath = path.join(this.uploadPath, fileName);
+    await fs.promises.mkdir(this.uploadPath, { recursive: true });
+    await fs.promises.writeFile(filePath, file.buffer);
+
+    document.FilePath = fileName;
+    document.UpdatedAt = new Date();
+    
+    return await this.documentRepository.save(document);
+  }
+
   async create(
     createDocumentDto: CreateDocumentDto,
-    file: Express.Multer.File,
+    file?: Express.Multer.File,
   ): Promise<Document> {
     const verificationCode = this.generateVerificationCode();
 
@@ -117,11 +140,15 @@ export class DocumentsService {
       if (!existing) isUnique = true;
     }
 
-    const fileName = `${verificationCode}_${file.originalname}`;
-    const filePath = path.join(this.uploadPath, fileName);
+    let fileName = null;
+    if(file) {
+      fileName = `${verificationCode}_${file.originalname}`;
+      const filePath = path.join(this.uploadPath, fileName);
 
-    await fs.promises.mkdir(this.uploadPath, { recursive: true });
-    await fs.promises.writeFile(filePath, file.buffer);
+      await fs.promises.mkdir(this.uploadPath, { recursive: true });
+      await fs.promises.writeFile(filePath, file.buffer);
+    }
+
     const document = this.documentRepository.create({
       ...createDocumentDto,
       VerificationCode: verificationCode,
@@ -130,15 +157,6 @@ export class DocumentsService {
     });
     return await this.documentRepository.save(document);
   }
-
-  //  async update(id: number, updateDocumentDto: UpdateDocumentDto): Promise<Document> {
-  //    const document = await this.findOne(id);
-  //    this.documentRepository.merge(document, {
-  //      ...updateDocumentDto,
-  //      UpdatedAt: new Date()
-  //    });
-  //    return await this.documentRepository.save(document);
-  //  }
 
   async update(
     id: number,

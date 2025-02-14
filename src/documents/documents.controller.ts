@@ -66,9 +66,19 @@ export class DocumentsController {
   @UseInterceptors(FileInterceptor('file'))
   create(
     @Body() createDocumentDto: CreateDocumentDto,
-    @UploadedFile() file: Express.Multer.File,
+    @UploadedFile() file?: Express.Multer.File,
   ): Promise<Document> {
     return this.documentsService.create(createDocumentDto, file);
+  }
+
+  @Put(':id/archivo')
+  @UseGuards(JwtAuthGuard)
+  @UseInterceptors(FileInterceptor('file'))
+  uploadFile(
+    @Param('id', ParseIntPipe) id: number,
+    @UploadedFile() file: Express.Multer.File,
+  ): Promise<Document> {
+    return this.documentsService.uploadFile(id, file);
   }
 
   @Put('reactivate/:id')

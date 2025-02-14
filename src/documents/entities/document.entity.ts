@@ -34,7 +34,7 @@ export class Document {
  @Column({ type: 'nvarchar', length: 'MAX', nullable: true })
  Description: string;
 
- @Column({ type: 'nvarchar', length: 255 })
+ @Column({ type: 'nvarchar', length: 255, nullable: true })
  FilePath: string;
 
  @Column({ type: 'datetime2' })
