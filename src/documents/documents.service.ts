@@ -167,15 +167,19 @@ export class DocumentsService {
 
     let filePath = document.FilePath;
     if (file) {
+      const rutaArchivoAntiguo = path.join(this.uploadPath, document.FilePath);
       try {
-        await fs.promises.unlink(document.FilePath);
+        await fs.promises.unlink(rutaArchivoAntiguo);
       } catch (error) {
         console.error('Error deleting old file:', error);
       }
 
       const fileName = `${document.VerificationCode}_${file.originalname}`;
-      filePath = path.join(this.uploadPath, fileName);
+      const filePath = path.join(this.uploadPath, fileName);
+      await fs.promises.mkdir(this.uploadPath, { recursive: true });
       await fs.promises.writeFile(filePath, file.buffer);
+
+      document.FilePath = fileName;
     }
 
     this.documentRepository.merge(document, {
