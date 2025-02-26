@@ -1,16 +1,15 @@
 import {
   Injectable,
-  NotFoundException,
-  ConflictException,
+  NotFoundException
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { ConfigService } from '@nestjs/config';
 import { Document } from '../documents/entities/document.entity';
 import * as fs from 'fs';
 import * as path from 'path';
 import { UpdateDocumentDto } from './dto/update-document.dto';
 import { CreateDocumentDto } from './dto/create-document.dto';
+import { ConfigService } from '@nestjs/config';
 
 @Injectable()
 export class DocumentsService {
@@ -21,9 +20,16 @@ export class DocumentsService {
     private documentRepository: Repository<Document>,
     private configService: ConfigService,
   ) {
-    this.uploadPath = this.configService.get<string>('UPLOAD_PATH');
-    if (!this.uploadPath) {
-      throw new Error('UPLOAD_PATH is not defined in the configuration');
+    const stage = this.configService.get<string>('STAGE') || 'dev';
+
+    if (stage === 'prod') {
+      this.uploadPath = path.join(__dirname, '..', 'files');
+    } else {
+      this.uploadPath = path.join(process.cwd(), 'src', 'files');
+    }
+  
+    if (!fs.existsSync(this.uploadPath)) {
+      fs.mkdirSync(this.uploadPath, { recursive: true });
     }
   }
 
@@ -109,7 +115,11 @@ export class DocumentsService {
     if (document.FilePath) {
       const rutaArchivoAntiguo = path.join(this.uploadPath, document.FilePath);
       try {
-        await fs.promises.unlink(rutaArchivoAntiguo);
+        if (fs.existsSync(rutaArchivoAntiguo)) {
+          await fs.promises.unlink(rutaArchivoAntiguo);
+        } else {
+          console.log(`Archivo anterior no encontrado: ${rutaArchivoAntiguo}`);
+        }
       } catch (error) {
         console.error('Error al eliminar archivo antiguo:', error);
       }
@@ -122,7 +132,7 @@ export class DocumentsService {
 
     document.FilePath = fileName;
     document.UpdatedAt = new Date();
-    
+
     return await this.documentRepository.save(document);
   }
 
@@ -141,7 +151,7 @@ export class DocumentsService {
     }
 
     let fileName = null;
-    if(file) {
+    if (file) {
       fileName = `${verificationCode}_${file.originalname}`;
       const filePath = path.join(this.uploadPath, fileName);
 

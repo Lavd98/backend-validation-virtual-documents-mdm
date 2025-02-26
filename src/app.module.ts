@@ -8,38 +8,25 @@ import { AreasModule } from './areas/areas.module';
 import { DocumentTypesModule } from './document-types/document-types.module';
 import { UsersModule } from './users/users.module';
 import { DocumentsModule } from './documents/documents.module';
+import { appConfig } from './config/app.config';
+import { databaseConfig } from './config/database.config';
 
 @Module({
   imports: [
-    ConfigModule.forRoot({
-      isGlobal: true,
-      envFilePath: `.env.${process.env.NODE_ENV || 'development'}`
-    }),
+    ConfigModule.forRoot(appConfig),
+
     TypeOrmModule.forRootAsync({
       imports: [ConfigModule],
       inject: [ConfigService],
-      useFactory: (configService: ConfigService) => ({
-        type: 'mssql',
-        host: configService.get<string>('DATABASE_HOST'),
-        port: parseInt(configService.get<string>('DATABASE_PORT'), 10),
-        username: configService.get<string>('DATABASE_USERNAME'),
-        password: configService.get<string>('DATABASE_PASSWORD'),
-        database: configService.get<string>('DATABASE_NAME'),
-        entities: [__dirname + '/**/*.entity{.ts,.js}'],
-        synchronize: false,
-        autoLoadEntities: true,
-        options: {
-          encrypt: true,
-          trustServerCertificate: true
-        },
-      }),
+      useFactory: databaseConfig
     }),
     AuthModule,
-    AreasModule, 
-    DocumentTypesModule, 
-    UsersModule, DocumentsModule
+    AreasModule,
+    DocumentTypesModule,
+    UsersModule,
+    DocumentsModule
   ],
   controllers: [AppController],
   providers: [AppService],
 })
-export class AppModule {}
+export class AppModule { }
